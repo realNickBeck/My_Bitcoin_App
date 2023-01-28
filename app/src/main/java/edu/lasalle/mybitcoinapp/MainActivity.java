@@ -4,12 +4,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.text.Editable;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,14 +38,20 @@ public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding binding;
     private RequestQueue request;
-   // private EditText cryptoInputEditText;
+    private EditText searchEditText;
+    private RecyclerView recyclerView;
+    private ProgressBar loadingProgressBar;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
-       // setContentView(R.layout.activity_main);
+        searchEditText = findViewById(R.id.searchEditText);
+        recyclerView = findViewById(R.id.recycleView);
+        loadingProgressBar = findViewById(R.id.loadingProgressBar);
+
         setContentView(binding.getRoot());
         replaceFragment(new HomeFragment());            //when app is loaded set to home tab
 
