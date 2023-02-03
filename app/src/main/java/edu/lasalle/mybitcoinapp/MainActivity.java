@@ -4,10 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,7 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -24,11 +26,16 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 import edu.lasalle.mybitcoinapp.databinding.ActivityMainBinding;
@@ -41,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
     private EditText searchEditText;
     private RecyclerView recyclerView;
     private ProgressBar loadingProgressBar;
+    private ArrayList<CurrencyModel>  currencyModelArrayList;
+    private CurrencyAdapter currencyAdapter;
 
 
     @Override
@@ -51,6 +60,28 @@ public class MainActivity extends AppCompatActivity {
         searchEditText = findViewById(R.id.searchEditText);
         recyclerView = findViewById(R.id.recycleView);
         loadingProgressBar = findViewById(R.id.loadingProgressBar);
+        currencyModelArrayList = new ArrayList<>();
+        currencyAdapter = new CurrencyAdapter(currencyModelArrayList,this);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(currencyAdapter);
+        getCurrentInfo();
+
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                filter(s.toString());
+            }
+        });
 
         setContentView(binding.getRoot());
         replaceFragment(new HomeFragment());            //when app is loaded set to home tab
@@ -75,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //Use Volley library to get info from CoinMarketAPI
-        request = Volley.newRequestQueue(this);
+        //request = Volley.newRequestQueue(this);
 
        /* buttonSearch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,31 +133,59 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
+    private void filter (String currency){
+        ArrayList<CurrencyModel> list = new ArrayList<>();
+        for (CurrencyModel item: currencyModelArrayList){
+            if (item.getName().toLowerCase().contains(currency.toLowerCase())){
+                list.add(item);
+            }
+        }
+        if (list.isEmpty()){
+            Toast.makeText(this, "No Currency found", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            currencyAdapter.filterList(list);
+        }
+    }
+
 
     //method to get API information
-    private void getCurrentInfo(String cryptoName){
+    private void getCurrentInfo(){
+        loadingProgressBar.setVisibility(View.VISIBLE);
         //url of COinMarketCap API
         String url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest";
+        //Use Volley library to get info from CoinMarketAPI
+        request = Volley.newRequestQueue(this);
         String apiKey = "6704264f-0c9d-47b5-8e97-98a4606aec0c";
 
-        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>() {
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        loadingProgressBar.setVisibility(View.GONE);
                         try {
-                            //get name from api and set it on app
-                            String name = response.getJSONObject("data").getString("name");
+                            JSONArray data = response.getJSONArray("data");
+                            for (int i = 0; i < data.length(); i++){
+                                JSONObject dataObject = data.getJSONObject(i);
+                                String name = dataObject.getString("name");
+                                String symbol = dataObject.getString("symbol");
+                                JSONObject quote = dataObject.getJSONObject("quote");
+                                JSONObject USD = quote.getJSONObject("USD");
+                                double price = USD.getDouble("price");
+                                currencyModelArrayList.add(new CurrencyModel(name, symbol, price));
+                            }
 
+                            currencyAdapter.notifyDataSetChanged();
+                            //get name from api and set it on app
+                            //String name = response.getJSONObject("data").getString("name");
 
                             //get symbol from api and set it on app
-                            String symbol = response.getJSONObject("data").getString("symbol");;
-
+                            //String symbol = response.getJSONObject("data").getString("symbol");
 
                             //get current price of the requested crypto currency
-                            String price = response.getJSONObject("quote").getJSONObject("USD").getString("price");
+                            //String price = response.getJSONObject("quote").getJSONObject("USD").getString("price");
 
 
-                        }catch (JSONException e) {
+                        } catch (JSONException e) {
                             e.printStackTrace();
                             Toast.makeText(MainActivity.this, "Failed to Extract JSON Data", Toast.LENGTH_SHORT).show();
                         }
@@ -135,12 +194,18 @@ public class MainActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        loadingProgressBar.setVisibility(View.GONE);
                         error.printStackTrace();
                         Toast.makeText(MainActivity.this, "Failed to Get Data", Toast.LENGTH_SHORT).show();
                     }
                 }
-
-        );
+        ){
+            public Map<String, String> getHeader() throws AuthFailureError{
+                HashMap<String, String> header = new HashMap<>();
+                header.put("X-CMC_PRO_API_KEY", "6704264f-0c9d-47b5-8e97-98a4606aec0c");
+                return header;
+            }
+        };
         request.add(objectRequest);
     }
 
