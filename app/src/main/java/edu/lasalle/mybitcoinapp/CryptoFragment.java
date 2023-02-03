@@ -3,17 +3,26 @@ package edu.lasalle.mybitcoinapp;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link CryptoFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
+
 public class CryptoFragment extends Fragment {
+
+    private RecyclerView cryptoRecyclerView;
+    private ArrayList<CurrencyModel> currencyModelArrayList;
+    private CurrencyAdapter currencyAdapter;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -58,7 +67,16 @@ public class CryptoFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_crypto, container, false);
+        currencyModelArrayList = new ArrayList<>();
+        currencyAdapter = new CurrencyAdapter(currencyModelArrayList, view.getContext());
+
+        cryptoRecyclerView = view.findViewById(R.id.cryptoRecycleView);
+        cryptoRecyclerView.setHasFixedSize(true);
+        cryptoRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        cryptoRecyclerView.setAdapter(new CurrencyAdapter(currencyModelArrayList, view.getContext()));
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_crypto, container, false);
+      //  return inflater.inflate(R.layout.fragment_crypto, container, false);
+        return view;
     }
 }

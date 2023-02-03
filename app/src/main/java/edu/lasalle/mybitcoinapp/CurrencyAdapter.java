@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHolder> {
     private ArrayList<CurrencyModel> currencyModelArrayList;
-    private Context context;
+    private final Context context;
     private static DecimalFormat df2 = new DecimalFormat("#.###");
 
     public CurrencyAdapter(ArrayList<CurrencyModel> currencyModelArrayList, Context context) {
@@ -35,6 +35,11 @@ public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHo
         holder.name.setText(currencyModel.getName());
         holder.symbol.setText(currencyModel.getSymbol());
         holder.price.setText("$ "+ df2.format(currencyModel.getPrice()));
+    }
+
+    public void filterList(ArrayList<CurrencyModel> filteredList){
+        currencyModelArrayList = filteredList;
+        notifyDataSetChanged();
     }
 
     @Override

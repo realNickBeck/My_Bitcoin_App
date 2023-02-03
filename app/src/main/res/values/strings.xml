@@ -9,4 +9,5 @@
     <string name="symbol">Symbol</string>
     <string name="name">Name</string>
     <string name="price">Price</string>
+    <string name="search_stocks">Search Stocks</string>
 </resources>
