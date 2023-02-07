@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.fragment_crypto);
 
         //other variables
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -62,22 +63,21 @@ public class MainActivity extends AppCompatActivity {
      //   cryptoLoadingProgressBar = findViewById(R.id.cryptoLoadingProgressBar);
 
         //stock variables
-        stockSearchEditText = findViewById(R.id.stockSearchEditText);
-        stockRecycleView = findViewById(R.id.stockRecycleView);
-        stockLoadingProgressBar = findViewById(R.id.stockLoadingProgressBar);
+      //  stockSearchEditText = findViewById(R.id.stockSearchEditText);
+      //  stockRecycleView = findViewById(R.id.stockRecycleView);
+       // stockLoadingProgressBar = findViewById(R.id.stockLoadingProgressBar);
 
-        setContentView(binding.getRoot());
-        replaceFragment(new HomeFragment());            //when app is loaded set to home tab
 
-        // TODO: 2/1/23  Fix this code so it works
-      /*  currencyModelArrayList = new ArrayList<>();
-        currencyAdapter = new CurrencyAdapter(currencyModelArrayList, this);
-        LinearLayoutManager manager = new LinearLayoutManager(this);
+        //Set adapter class to RecyclerView
+        currencyModelArrayList = new ArrayList<>();
+        RecyclerView.LayoutManager manager = new LinearLayoutManager(this);
         cryptoRecycleView.setLayoutManager(manager);
         cryptoRecycleView.setHasFixedSize(true);
+        currencyAdapter = new CurrencyAdapter(currencyModelArrayList, this);
         cryptoRecycleView.setAdapter(currencyAdapter);
-       // cryptoRecycleView.setLayoutManager(new LinearLayoutManager(this));
-       // cryptoRecycleView.setAdapter(currencyAdapter); */
+
+       /* setContentView(binding.getRoot());
+        replaceFragment(new HomeFragment());            //when app is loaded set to home tab
 
         //when clicking on tab goto the correct fragment for the tab clicked
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
@@ -93,13 +93,13 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
             return true;
-        });
+        }); */
 
         //Use Volley library to get info from CoinMarketAPI
         request = Volley.newRequestQueue(this);
-    //    getCurrentInfo();
+        getCurrentInfo();
 
-      /*  cryptoSearchEditText.addTextChangedListener(new TextWatcher() {
+        cryptoSearchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable editable) {
                 filter(editable.toString());
             }
-        }); */
+        });
     }
 
     //function to goto fragment
@@ -157,17 +157,19 @@ public class MainActivity extends AppCompatActivity {
                             JSONArray dataArray = response.getJSONArray("data");
                             for(int i = 0; i< dataArray.length(); i++){
                                 JSONObject dataObject = dataArray.getJSONObject(i);
-                                //get name from api and set it on app
+                                //get name from api
                                 String name = dataObject.getString("name");
-                                //get symbol from api and set it on app
+                                //get symbol from api
                                 String symbol = dataObject.getString("symbol");
                                 JSONObject quote = dataObject.getJSONObject("quote");
                                 JSONObject USD = quote.getJSONObject("USD");
-                                //get price from api and set it on app
+                                //get price from api
                                 double price = USD.getDouble("price");
+
                                 currencyModelArrayList.add(new CurrencyModel(name, symbol, price));
                             }
                             currencyAdapter.notifyDataSetChanged();
+
                         }catch (JSONException e) {
                             e.printStackTrace();
                             Toast.makeText(MainActivity.this, "Failed to Extract JSON Data", Toast.LENGTH_SHORT).show();
@@ -176,7 +178,6 @@ public class MainActivity extends AppCompatActivity {
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        error.printStackTrace();
                       //  cryptoLoadingProgressBar.setVisibility(View.GONE);
                         Toast.makeText(MainActivity.this, "Failed to Get Data", Toast.LENGTH_SHORT).show();
                     }

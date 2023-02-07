@@ -47,7 +47,7 @@ public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHo
         return currencyModelArrayList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public static class ViewHolder extends RecyclerView.ViewHolder{
         private TextView symbol, name, price;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

@@ -2,6 +2,8 @@ package edu.lasalle.mybitcoinapp;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -67,16 +69,22 @@ public class CryptoFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_crypto, container, false);
-        currencyModelArrayList = new ArrayList<>();
-        currencyAdapter = new CurrencyAdapter(currencyModelArrayList, view.getContext());
-
-        cryptoRecyclerView = view.findViewById(R.id.cryptoRecycleView);
-        cryptoRecyclerView.setHasFixedSize(true);
-        cryptoRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
-        cryptoRecyclerView.setAdapter(new CurrencyAdapter(currencyModelArrayList, view.getContext()));
         // Inflate the layout for this fragment
-      //  return inflater.inflate(R.layout.fragment_crypto, container, false);
-        return view;
+        return inflater.inflate(R.layout.fragment_crypto, container, false);
+
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        currencyModelArrayList = new ArrayList<>();
+        cryptoRecyclerView = view.findViewById(R.id.cryptoRecycleView);
+        cryptoRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        cryptoRecyclerView.setHasFixedSize(true);
+        currencyAdapter = new CurrencyAdapter(currencyModelArrayList, getContext());
+        cryptoRecyclerView.setAdapter(currencyAdapter);
+
+        currencyAdapter.notifyDataSetChanged();
     }
 }
