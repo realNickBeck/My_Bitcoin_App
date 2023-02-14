@@ -10,4 +10,7 @@
     <string name="name">Name</string>
     <string name="price">Price</string>
     <string name="search_stocks">Search Stocks</string>
+    <string name="search_ticker">Search Ticker</string>
+    <string name="search">Search</string>
+    <string name="enter_ticker">Enter Ticker</string>
 </resources>
