@@ -195,7 +195,7 @@ public class CryptoFragment extends Fragment {
             @Override
             public void onErrorResponse(VolleyError error) {
                 cryptoLoadingProgressBar.setVisibility(View.GONE);
-                Toast.makeText(getContext(), "Failed to Get Data", Toast.LENGTH_SHORT).show();
+             //   Toast.makeText(getContext(), "Failed to Get Data", Toast.LENGTH_SHORT).show();
             }
         })
         {

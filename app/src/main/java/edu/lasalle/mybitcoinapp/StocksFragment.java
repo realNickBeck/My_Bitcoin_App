@@ -15,40 +15,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
-import com.android.volley.AuthFailureError;
-import com.android.volley.Cache;
-import com.android.volley.Network;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.BasicNetwork;
-import com.android.volley.toolbox.DiskBasedCache;
-import com.android.volley.toolbox.HurlStack;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Scanner;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -126,6 +102,21 @@ public class StocksFragment extends Fragment {
 
         getStocks();        //gets the stock ticker and stock name onto the recyclerView
 
+        stockSearchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {
+                filter(editable.toString());
+            }
+        });
+
         return v;
     }
 
@@ -133,10 +124,11 @@ public class StocksFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        stockAdapter = new StockAdapter(stockModelArrayList, getContext());
         stockModelArrayList = new ArrayList<>();
+        stockRecycleView = view.findViewById(R.id.stockRecycleView);
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
         stockRecycleView.setLayoutManager(manager);
+        stockAdapter = new StockAdapter(stockModelArrayList, getContext());
         stockRecycleView.setHasFixedSize(true);
         stockRecycleView.setAdapter(stockAdapter);
 
@@ -144,48 +136,19 @@ public class StocksFragment extends Fragment {
 
     }
 
-    private void getStockInfo(String userInput){
-         stockLoadingProgressBar.setVisibility(View.VISIBLE);
-       // String stockTicker =  String.valueOf(stockSearchEditText.getText()).toUpperCase();
-        Toast.makeText(getContext(), "stock info was called", Toast.LENGTH_SHORT).show();
-        //url of COinMarketCap API
-        String url = "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=" + userInput + "&interval=5min&apikey=5CCA399QMPAGBKE1";
-
-        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        stockLoadingProgressBar.setVisibility(View.GONE);
-                        try {
-                            JSONArray dataArray = response.getJSONArray("Time Series (5min)");
-                            for(int i = 0; i< dataArray.length(); i++){
-                                JSONObject dataObject = dataArray.getJSONObject(i);
-                                //get name from api
-                                String name = dataObject.getString("name");
-                                //get symbol from api
-                                String symbol = dataObject.getString("symbol");
-                                JSONObject quote = dataObject.getJSONObject("quote");
-                                JSONObject USD = quote.getJSONObject("USD");
-                                //get price from api
-                                double price = USD.getDouble("price");
-
-                                stockModelArrayList.add(new CurrencyModel(name, symbol, price));
-                            }
-                            stockAdapter.notifyDataSetChanged();
-
-                        }catch (JSONException e) {
-                            e.printStackTrace();
-                            Toast.makeText(getContext(), "Failed to Extract JSON Data", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                stockLoadingProgressBar.setVisibility(View.GONE);
-                Toast.makeText(getContext(), "Failed to Get Data", Toast.LENGTH_SHORT).show();
+    private void filter (String currency){
+        ArrayList<CurrencyModel> list = new ArrayList<>();
+        for (CurrencyModel item: stockModelArrayList){
+            if (item.getName().toLowerCase().contains(currency.toLowerCase())){
+                list.add(item);
             }
-        });
-        request.add(objectRequest);
+        }
+        if (list.isEmpty()){
+            Toast.makeText(getContext(), "No Stock Found", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            stockAdapter.filterList(list);
+        }
     }
 
     private void getStocks()  {
@@ -207,7 +170,7 @@ public class StocksFragment extends Fragment {
                     stockTickers = new String[stockLine.length];
                     stockCompanies = new String[stockLine.length];
 
-                    for(int i=1; i< 10; i++ ){
+                    for(int i=1; i< 100; i++ ){
                         stockTokens = stockLine[i].split(",");
                         stockTickers[i] = stockTokens[0];
                         String ticker = "" + stockTickers[i];
