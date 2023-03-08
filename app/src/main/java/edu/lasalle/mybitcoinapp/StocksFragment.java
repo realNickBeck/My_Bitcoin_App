@@ -1,5 +1,6 @@
 package edu.lasalle.mybitcoinapp;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -8,29 +9,46 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.Cache;
+import com.android.volley.Network;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.BasicNetwork;
+import com.android.volley.toolbox.DiskBasedCache;
+import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Scanner;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -39,11 +57,12 @@ import java.util.Objects;
  */
 public class StocksFragment extends Fragment {
 
-    private ArrayList<CurrencyModel> currencyModelArrayList;
+    private ArrayList<CurrencyModel> stockModelArrayList;
     private EditText stockSearchEditText;
     private ProgressBar stockLoadingProgressBar;
-    private CurrencyAdapter currencyAdapter;
+    private StockAdapter stockAdapter;
     private RequestQueue request;
+    private RecyclerView stockRecycleView;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -89,39 +108,46 @@ public class StocksFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        View v = inflater.inflate(R.layout.fragment_stocks, container, false);
 
+        stockSearchEditText = v.findViewById(R.id.stockSearchEditText);
+        stockRecycleView = v.findViewById(R.id.stockRecycleView);
+        stockLoadingProgressBar = v.findViewById(R.id.stockLoadingProgressBar);
+
+        stockAdapter = new StockAdapter(stockModelArrayList, getContext());
+        stockModelArrayList = new ArrayList<>();
+        RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
+        stockRecycleView.setLayoutManager(manager);
+        stockRecycleView.setHasFixedSize(true);
+        stockRecycleView.setAdapter(stockAdapter);
+
+        //Use Volley library to get info from CoinMarketAPI
         request = Volley.newRequestQueue(getContext());
-        return inflater.inflate(R.layout.fragment_stocks, container, false);
+
+        getStocks();        //gets the stock ticker and stock name onto the recyclerView
+
+        return v;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        stockSearchEditText = view.findViewById(R.id.stockSearchEditText);
-        stockLoadingProgressBar = view.findViewById(R.id.stockLoadingProgressBar);
 
-        stockSearchEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //get city user puts into the edit text box
-                String userInput = Objects.requireNonNull(stockSearchEditText.getText()).toString().toUpperCase();
+        stockAdapter = new StockAdapter(stockModelArrayList, getContext());
+        stockModelArrayList = new ArrayList<>();
+        RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
+        stockRecycleView.setLayoutManager(manager);
+        stockRecycleView.setHasFixedSize(true);
+        stockRecycleView.setAdapter(stockAdapter);
 
-                //check if they actually puy input into the edit text box
-                if(userInput.isEmpty()){
-                    Toast.makeText(getContext(), "Please Enter Stock Ticker", Toast.LENGTH_SHORT).show();
-                }else{
-                    //call function that gets information from the api
-                    getStockInfo(userInput);
-                }
-            }
-        });
+        stockAdapter.notifyDataSetChanged();
+
     }
-
 
     private void getStockInfo(String userInput){
          stockLoadingProgressBar.setVisibility(View.VISIBLE);
        // String stockTicker =  String.valueOf(stockSearchEditText.getText()).toUpperCase();
-
+        Toast.makeText(getContext(), "stock info was called", Toast.LENGTH_SHORT).show();
         //url of COinMarketCap API
         String url = "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=" + userInput + "&interval=5min&apikey=5CCA399QMPAGBKE1";
 
@@ -143,9 +169,9 @@ public class StocksFragment extends Fragment {
                                 //get price from api
                                 double price = USD.getDouble("price");
 
-                                currencyModelArrayList.add(new CurrencyModel(name, symbol, price));
+                                stockModelArrayList.add(new CurrencyModel(name, symbol, price));
                             }
-                            currencyAdapter.notifyDataSetChanged();
+                            stockAdapter.notifyDataSetChanged();
 
                         }catch (JSONException e) {
                             e.printStackTrace();
@@ -162,4 +188,55 @@ public class StocksFragment extends Fragment {
         request.add(objectRequest);
     }
 
+    private void getStocks()  {
+        stockLoadingProgressBar.setVisibility(View.VISIBLE);
+        //url of COinMarketCap API
+        String url = "https://www.alphavantage.co/query?function=LISTING_STATUS&apikey=5CCA399QMPAGBKE1";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                stockLoadingProgressBar.setVisibility(View.GONE);
+                try {
+                    String[] stockTickers ;
+                    String[] stockCompanies;
+
+                    String[] stockLine = response.split("\n");
+                    String[] stockTokens;
+
+                    stockTickers = new String[stockLine.length];
+                    stockCompanies = new String[stockLine.length];
+
+                    for(int i=1; i< 10; i++ ){
+                        stockTokens = stockLine[i].split(",");
+                        stockTickers[i] = stockTokens[0];
+                        String ticker = "" + stockTickers[i];
+
+                        Log.v("Ticker: ", stockTickers[i]);
+
+                        stockCompanies[i] = stockTokens[1];
+                        String name = "" + stockCompanies[i];
+
+                        Log.v("Company: ", stockCompanies[i]);
+                        Log.v("number: ", "" + i);
+
+                        stockModelArrayList.add(new CurrencyModel(name, ticker ));
+                    }
+                    stockAdapter.notifyDataSetChanged();
+
+
+                } catch(Exception E){
+                   // Toast.makeText(getContext(), "Failed to Extract CSV Data", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                stockLoadingProgressBar.setVisibility(View.GONE);
+               // Toast.makeText(getContext(), "Failed to Get Data", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        request.add(stringRequest);
+    }
 }

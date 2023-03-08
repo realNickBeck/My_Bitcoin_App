@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="4dp"
+    app:cardCornerRadius="4dp"
+    app:cardElevation="3dp"
+    app:cardBackgroundColor="@color/black_shade_2"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/relativeLayout">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/stockSymbol"
+            android:layout_margin="2dp"
+            android:padding="3dp"
+            android:text="@string/symbol"
+            android:textColor="@color/white"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/stockName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/stockSymbol"
+            android:text="@string/name"
+            android:textColor="@color/white"
+            android:padding="3dp"
+            android:layout_margin="2dp"/>
+
+
+
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>

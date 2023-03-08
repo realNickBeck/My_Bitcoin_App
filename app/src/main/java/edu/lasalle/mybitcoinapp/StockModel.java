@@ -1,16 +1,10 @@
 package edu.lasalle.mybitcoinapp;
 
-public class CurrencyModel {
+public class StockModel {
     private String name;
     private String symbol;
-    private double price;
 
-    public CurrencyModel(String name, String symbol,  double price) {
-        this.name = name;
-        this.symbol = symbol;
-        this.price = price;
-    }
-    public CurrencyModel(String name, String symbol) {
+    public StockModel(String name, String symbol) {
         this.name = name;
         this.symbol = symbol;
     }
@@ -29,13 +23,5 @@ public class CurrencyModel {
 
     public void setSymbol(String symbol) {
         this.symbol = symbol;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
     }
 }
