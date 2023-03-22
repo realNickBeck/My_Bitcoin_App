@@ -143,12 +143,12 @@
                 android:id="@+id/lowLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="228dp"
+                android:layout_marginTop="226dp"
                 android:layout_toRightOf="@id/highLabel"
                 android:padding="3dp"
                 android:text="52 Week Low"
-                android:textColor="@color/white"
                 android:layout_marginLeft="200dp"
+                android:textColor="@color/white"
                 android:textStyle="bold" />
 
             <TextView
