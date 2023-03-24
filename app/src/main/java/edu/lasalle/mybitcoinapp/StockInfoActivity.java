@@ -58,8 +58,6 @@ public class StockInfoActivity extends AppCompatActivity {
 
         request = Volley.newRequestQueue(this);
 
-
-
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
