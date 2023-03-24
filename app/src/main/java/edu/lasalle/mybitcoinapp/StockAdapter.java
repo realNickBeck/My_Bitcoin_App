@@ -1,10 +1,12 @@
 package edu.lasalle.mybitcoinapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,6 +34,14 @@ public class StockAdapter extends RecyclerView.Adapter<StockAdapter.ViewHolder>{
         CurrencyModel currencyModel = stockModelArrayList.get(position);
         holder.name.setText(currencyModel.getName());
         holder.symbol.setText(currencyModel.getSymbol());
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, StockInfoActivity.class);
+            intent.putExtra("stock_name", currencyModel.getName());
+            intent.putExtra("stock_symbol", currencyModel.getSymbol());
+            //Toast.makeText(context, currencyModel.getName(), Toast.LENGTH_SHORT).show();
+            context.startActivity(intent);
+        });
     }
 
     public void filterList(ArrayList<CurrencyModel> filteredList){

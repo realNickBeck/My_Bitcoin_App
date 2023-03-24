@@ -170,18 +170,13 @@ public class StocksFragment extends Fragment {
                     stockTickers = new String[stockLine.length];
                     stockCompanies = new String[stockLine.length];
 
-                    for(int i=1; i< 100; i++ ){
+                    for(int i=1; i< 500; i++ ){
                         stockTokens = stockLine[i].split(",");
                         stockTickers[i] = stockTokens[0];
                         String ticker = "" + stockTickers[i];
 
-                        Log.v("Ticker: ", stockTickers[i]);
-
                         stockCompanies[i] = stockTokens[1];
                         String name = "" + stockCompanies[i];
-
-                        Log.v("Company: ", stockCompanies[i]);
-                        Log.v("number: ", "" + i);
 
                         stockModelArrayList.add(new CurrencyModel(name, ticker ));
                     }
@@ -199,7 +194,6 @@ public class StocksFragment extends Fragment {
                // Toast.makeText(getContext(), "Failed to Get Data", Toast.LENGTH_SHORT).show();
             }
         });
-
         request.add(stringRequest);
     }
 }

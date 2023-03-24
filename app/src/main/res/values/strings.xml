@@ -13,4 +13,21 @@
     <string name="search_ticker">Search Ticker</string>
     <string name="search">Search</string>
     <string name="enter_ticker">Enter Ticker</string>
+    <string name="about_company">About Company</string>
+    <string name="company_info">Company Info</string>
+    <string name="company_name">Company Name</string>
+    <string name="sector">Sector</string>
+    <string name="sector_info">Sector Info</string>
+    <string name="statistics">Statistics</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+    <string name="openinfo">openInfo</string>
+    <string name="open_info">Open Info</string>
+    <string name="close_info">Close Info</string>
+    <string name="_52_week_high">52 Week High</string>
+    <string name="_52_week_low">52 Week Low</string>
+    <string name="week_low_info">week low info</string>
+    <string name="market_cap_info">Market Cap Info</string>
+    <string name="margin_cap">Margin Cap</string>
+    <string name="back">Back</string>
 </resources>
