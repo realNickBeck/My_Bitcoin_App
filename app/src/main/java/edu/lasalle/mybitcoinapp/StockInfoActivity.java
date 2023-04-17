@@ -1,8 +1,9 @@
 package edu.lasalle.mybitcoinapp;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -15,6 +16,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,6 +38,7 @@ public class StockInfoActivity extends AppCompatActivity {
     private TextView stock_low;
     private TextView market_cap ;
     private TextView button;
+    private ProgressBar stockInfoProgressBar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,6 +58,7 @@ public class StockInfoActivity extends AppCompatActivity {
         stock_low = findViewById(R.id.weekLowInfo);
         market_cap = findViewById(R.id.marketCapInfo);
         button = findViewById(R.id.button);
+        stockInfoProgressBar = findViewById(R.id.stockInfoProgressBar);
 
         request = Volley.newRequestQueue(this);
 
@@ -66,6 +70,7 @@ public class StockInfoActivity extends AppCompatActivity {
         });
 
         getIncomingIntent();
+
     }
 
     private void getIncomingIntent(){
@@ -75,6 +80,7 @@ public class StockInfoActivity extends AppCompatActivity {
             stock_symbol = getIntent().getStringExtra("stock_symbol").toUpperCase();
 
             callAlphaVantage(stock_symbol);
+            getPricing(stock_symbol);
         }
     }
 
@@ -85,8 +91,7 @@ public class StockInfoActivity extends AppCompatActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                       // cryptoLoadingProgressBar.setVisibility(View.GONE);
-
+                        stockInfoProgressBar.setVisibility(View.GONE);
                         try {
                             String symbolInfo = response.getString("Symbol");
                             String nameInfo = response.getString("Name");  //get name from api
@@ -110,6 +115,38 @@ public class StockInfoActivity extends AppCompatActivity {
                             stock_low.setText(low);
                             market_cap.setText(marketCap);
 
+                        }catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                stockInfoProgressBar.setVisibility(View.GONE);
+            }
+        });
+        request.add(objectRequest);
+    }
+    private void getPricing(String ticker){
+        String link = "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol="+ ticker + "&interval=5min&apikey=5CCA399QMPAGBKE1";
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, link, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // cryptoLoadingProgressBar.setVisibility(View.GONE);
+                        try {
+                            JSONArray dataArray = response.getJSONArray("Time Series (5min)");
+                            for(int i = 0; i< dataArray.length(); i++){
+                                JSONObject dataObject = dataArray.getJSONObject(i);
+
+                               // JSONObject quote = dataObject.getJSONObject("quote");
+                               // JSONObject USD = quote.getJSONObject("USD");
+                                //get price from api
+                                double price = dataObject.getDouble("1. open");
+                                Log.v("price", "" + price);
+
+                            }
                         }catch (JSONException e) {
                             e.printStackTrace();
                         }

@@ -30,4 +30,9 @@
     <string name="market_cap_info">Market Cap Info</string>
     <string name="margin_cap">Margin Cap</string>
     <string name="back">Back</string>
+    <string name="about">About</string>
+    <string name="title">Title</string>
+    <string name="article_image">Article Image</string>
+    <string name="publisher">Publisher</string>
+    <string name="search_news_article">Search News Article</string>
 </resources>

@@ -3,10 +3,30 @@ package edu.lasalle.mybitcoinapp;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -14,6 +34,15 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class HomeFragment extends Fragment {
+    private TextView title ;
+    private TextView publisher;
+    private ImageView image;
+    private EditText newsSearchEditText;
+    private StockAdapter stockAdapter;
+    private RequestQueue request;
+    private RecyclerView newsRecycleView;
+    private ArrayList<CurrencyModel> newsModelArrayList;
+    private ProgressBar newsLoadingProgressBar;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -59,6 +88,63 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        View v = inflater.inflate(R.layout.fragment_home, container, false);
+
+        newsSearchEditText = v.findViewById(R.id.newsSearchEditText);
+        newsLoadingProgressBar = v.findViewById(R.id.newsLoadingProgressBar);
+        newsRecycleView = v.findViewById(R.id.newsRecycleView);
+
+        stockAdapter = new StockAdapter(newsModelArrayList, getContext());
+        newsModelArrayList = new ArrayList<>();
+        RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
+        newsRecycleView.setLayoutManager(manager);
+        newsRecycleView.setHasFixedSize(true);
+        newsRecycleView.setAdapter(stockAdapter);
+
+        //Use Volley library to get info from CoinMarketAPI
+        request = Volley.newRequestQueue(getContext());
+
+        getArticles();        //gets the stock ticker and stock name onto the recyclerView
+
+        newsSearchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {
+                filter(editable.toString());
+            }
+        });
+
+         return v;
+    }
+
+    private void getArticles(){
+        String link = "https://www.alphavantage.co/query?function=OVERVIEW&symbol=" +  "&apikey=5CCA399QMPAGBKE1";
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, link, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        newsLoadingProgressBar.setVisibility(View.GONE);
+                        try {
+
+
+                        }catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                newsLoadingProgressBar.setVisibility(View.GONE);
+            }
+        });
+        request.add(objectRequest);
     }
 }
