@@ -6,7 +6,8 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:id="@+id/stockScrollView">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -178,7 +179,6 @@
                     android:layout_height="wrap_content"
                     android:layout_width="200dp"
                     android:layout_margin="2dp"
-
                     android:padding="3dp"
                     android:textColor="@color/white" />
                 <TextView
@@ -186,7 +186,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
-
                     android:padding="3dp"
                     android:textColor="@color/white" />
             </LinearLayout>
@@ -225,10 +224,18 @@
                         android:text="@string/back"/>
                 </LinearLayout>
             </LinearLayout>
-
         </LinearLayout>
-
     </ScrollView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/stockRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/stockScrollView"
+        android:layout_marginTop="40dp"
+        android:padding="3dp">
+
+    </androidx.recyclerview.widget.RecyclerView>
 
     <ProgressBar
         android:layout_width="wrap_content"

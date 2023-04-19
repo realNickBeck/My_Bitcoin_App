@@ -2,12 +2,15 @@ package edu.lasalle.mybitcoinapp;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -23,6 +27,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,10 +43,10 @@ public class HomeFragment extends Fragment {
     private TextView publisher;
     private ImageView image;
     private EditText newsSearchEditText;
-    private StockAdapter stockAdapter;
+    private NewsAdapter newsAdapter;
     private RequestQueue request;
     private RecyclerView newsRecycleView;
-    private ArrayList<CurrencyModel> newsModelArrayList;
+    private ArrayList<NewsModel> newsModelArrayList;
     private ProgressBar newsLoadingProgressBar;
 
     // TODO: Rename parameter arguments, choose names that match
@@ -94,12 +99,12 @@ public class HomeFragment extends Fragment {
         newsLoadingProgressBar = v.findViewById(R.id.newsLoadingProgressBar);
         newsRecycleView = v.findViewById(R.id.newsRecycleView);
 
-        stockAdapter = new StockAdapter(newsModelArrayList, getContext());
+        newsAdapter = new NewsAdapter(newsModelArrayList, getContext());
         newsModelArrayList = new ArrayList<>();
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
         newsRecycleView.setLayoutManager(manager);
         newsRecycleView.setHasFixedSize(true);
-        newsRecycleView.setAdapter(stockAdapter);
+        newsRecycleView.setAdapter(newsAdapter);
 
         //Use Volley library to get info from CoinMarketAPI
         request = Volley.newRequestQueue(getContext());
@@ -124,25 +129,68 @@ public class HomeFragment extends Fragment {
          return v;
     }
 
-    private void getArticles(){
-        String link = "https://www.alphavantage.co/query?function=OVERVIEW&symbol=" +  "&apikey=5CCA399QMPAGBKE1";
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
+        newsModelArrayList = new ArrayList<>();
+        newsRecycleView = view.findViewById(R.id.newsRecycleView);
+        newsRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        newsRecycleView.setHasFixedSize(true);
+        newsAdapter = new NewsAdapter(newsModelArrayList, getContext());
+        newsRecycleView.setAdapter(newsAdapter);
+
+        newsAdapter.notifyDataSetChanged();
+    }
+
+    private void filter (String currency){
+        ArrayList<NewsModel> list = new ArrayList<>();
+        for (NewsModel item: newsModelArrayList){
+            if (item.getArticleTitle().toLowerCase().contains(currency.toLowerCase())){
+                list.add(item);
+            }
+        }
+        if (list.isEmpty()){
+            Toast.makeText(getContext(), "No Stock Found", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            newsAdapter.filterList(list);
+        }
+    }
+
+    private void getArticles(){
+        String link = "https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=4e3eb7a98039409c8e1b858256330a00";
+        newsLoadingProgressBar.setVisibility(View.VISIBLE);
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, link, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         newsLoadingProgressBar.setVisibility(View.GONE);
                         try {
+                            JSONArray dataArray = response.getJSONArray("articles");
+                            for(int i = 0; i< dataArray.length(); i++){
+                                JSONObject dataObject = dataArray.getJSONObject(i);
+                                //get publisher from api
+                                JSONObject source = dataObject.getJSONObject("source");
+                                String publisher = source.getString("name");
+                                //get title from api
+                                String title = dataObject.getString("title");
+                                String image = dataObject.getString("urlToImage");
 
+                                newsModelArrayList.add(new NewsModel(publisher, title, image));
+                            }
+                            newsAdapter.notifyDataSetChanged();
 
                         }catch (JSONException e) {
                             e.printStackTrace();
+                            Log.d(" :", "Failed to get json data  ");
                         }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 newsLoadingProgressBar.setVisibility(View.GONE);
+                Log.d(" :", "Failed to call api  ");
             }
         });
         request.add(objectRequest);
