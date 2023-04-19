@@ -3,12 +3,12 @@ package edu.lasalle.mybitcoinapp;
 public class NewsModel {
     private String publisher;
     private String articleTitle;
-    private String url;
+    private String image;
 
-    public NewsModel(String publisher, String articleTitle, String url) {
+    public NewsModel(String publisher, String articleTitle, String image) {
         this.publisher = publisher;
         this.articleTitle = articleTitle;
-        this.url = url;
+        this.image = image;
     }
 
     public String getPublisher() {
@@ -27,11 +27,11 @@ public class NewsModel {
         this.articleTitle = articleTitle;
     }
 
-    public String getUrl() {
-        return url;
+    public String getImage() {
+        return image;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setImage(String image) {
+        this.image = image;
     }
 }

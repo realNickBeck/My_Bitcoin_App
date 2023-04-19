@@ -8,6 +8,8 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -20,6 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 
 
 public class StockInfoActivity extends AppCompatActivity {
@@ -39,11 +42,23 @@ public class StockInfoActivity extends AppCompatActivity {
     private TextView market_cap ;
     private TextView button;
     private ProgressBar stockInfoProgressBar;
+    private StockNewsAdapter stockNewsAdapter;
+    private RecyclerView stockRecycleView;
+    private ArrayList<NewsModel> stockNewsModelArrayList;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stock_info);
+
+        stockNewsModelArrayList = new ArrayList<>();
+        stockRecycleView = findViewById(R.id.stockRecyclerView);
+        stockRecycleView.setLayoutManager(new LinearLayoutManager(this));
+        stockRecycleView.setHasFixedSize(true);
+        stockNewsAdapter = new StockNewsAdapter(stockNewsModelArrayList, this);
+        stockRecycleView.setAdapter(stockNewsAdapter);
+
+        stockNewsAdapter.notifyDataSetChanged();
 
 
         symbol = findViewById(R.id.symbol);
@@ -73,6 +88,7 @@ public class StockInfoActivity extends AppCompatActivity {
 
     }
 
+
     private void getIncomingIntent(){
         String stock_symbol = "";
         if(getIntent().hasExtra("stock_name") && getIntent().hasExtra("stock_symbol")){
@@ -81,6 +97,7 @@ public class StockInfoActivity extends AppCompatActivity {
 
             callAlphaVantage(stock_symbol);
             getPricing(stock_symbol);
+            getNews(stock_symbol);
         }
     }
 
@@ -155,6 +172,40 @@ public class StockInfoActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 //cryptoLoadingProgressBar.setVisibility(View.GONE);
+            }
+        });
+        request.add(objectRequest);
+    }
+
+    private void getNews(String ticker){
+        String link = "https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers="+ ticker+"&apikey=5CCA399QMPAGBKE1";
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, link, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // cryptoLoadingProgressBar.setVisibility(View.GONE);
+                        try {
+                            JSONArray dataArray = response.getJSONArray("feed");
+                            for(int i = 0; i< dataArray.length(); i++){
+                                JSONObject dataObject = dataArray.getJSONObject(i);
+                                //get publisher from api
+                                String publisher = dataObject.getString("source");
+                                //get title from api
+                                String title = dataObject.getString("title");
+                                String image = dataObject.getString("banner_image");
+
+                                stockNewsModelArrayList.add(new NewsModel(publisher, title, image));
+                            }
+                            stockNewsAdapter.notifyDataSetChanged();
+                        }catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
             }
         });
         request.add(objectRequest);

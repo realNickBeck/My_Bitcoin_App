@@ -20,6 +20,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -32,6 +33,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -192,7 +195,14 @@ public class HomeFragment extends Fragment {
                 newsLoadingProgressBar.setVisibility(View.GONE);
                 Log.d(" :", "Failed to call api  ");
             }
-        });
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("User-Agent", "4e3eb7a98039409c8e1b858256330a00");
+                return headers;
+            }
+        };
         request.add(objectRequest);
     }
 }

@@ -5,10 +5,13 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -33,7 +36,8 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder>{
             NewsModel newsModel = newsModelArrayList.get(position);
             holder.publisher.setText(newsModel.getPublisher());
             holder.articleTitle.setText(newsModel.getArticleTitle());
-            holder.url.setText(newsModel.getUrl());
+            String image = newsModelArrayList.get(position).getImage();
+            Picasso.get().load(image).into(holder.image);
 
             }
 
@@ -48,12 +52,13 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder>{
             }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
-        private TextView publisher, articleTitle, url;
+        private TextView publisher, articleTitle;
+        private ImageView image;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             publisher= itemView.findViewById(R.id.publisherName);
             articleTitle= itemView.findViewById(R.id.articleTitle);
-            url= itemView.findViewById(R.id.articleImage);
+            image= itemView.findViewById(R.id.articleImage);
         }
-}
+    }
 }

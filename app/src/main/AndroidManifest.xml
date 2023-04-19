@@ -21,6 +21,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".StockInfoActivity" />
+        <activity android:name=".CryptoInfoActivity" />
     </application>
 
 </manifest>
