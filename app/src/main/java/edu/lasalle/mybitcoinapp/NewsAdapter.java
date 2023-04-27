@@ -2,6 +2,7 @@ package edu.lasalle.mybitcoinapp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +40,13 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder>{
             String image = newsModelArrayList.get(position).getImage();
             Picasso.get().load(image).into(holder.image);
 
-            }
+            holder.itemView.setOnClickListener(v -> {
+                Uri uri = Uri.parse(newsModel.getUrl()); // missing 'http://' will cause crashed
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                context.startActivity(intent);
+            });
+
+    }
 
     public void filterList(ArrayList<NewsModel> filteredList){
             newsModelArrayList = filteredList;

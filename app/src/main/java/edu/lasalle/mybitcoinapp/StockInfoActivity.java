@@ -194,8 +194,9 @@ public class StockInfoActivity extends AppCompatActivity {
                                 //get title from api
                                 String title = dataObject.getString("title");
                                 String image = dataObject.getString("banner_image");
+                                String url = dataObject.getString("url");
 
-                                stockNewsModelArrayList.add(new NewsModel(publisher, title, image));
+                                stockNewsModelArrayList.add(new NewsModel(publisher, title, image, url));
                             }
                             stockNewsAdapter.notifyDataSetChanged();
                         }catch (JSONException e) {

@@ -43,7 +43,10 @@ public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHo
             intent.putExtra("crypto_name", currencyModel.getName());
             intent.putExtra("crypto_symbol", currencyModel.getSymbol());
             intent.putExtra("crypto_price", "$ "+ df2.format(currencyModel.getPrice()));
-            //Toast.makeText(context, "" + currencyModel.getPrice(), Toast.LENGTH_SHORT).show();
+            intent.putExtra("crypto_volume", "" + df2.format(currencyModel.getVolume()));
+            intent.putExtra("crypto_marketCap", "" + df2.format(currencyModel.getMarketCap()));
+
+            //Toast.makeText(context, "" + currencyModel.getVolume(), Toast.LENGTH_SHORT).show();
             context.startActivity(intent);
         });
     }

@@ -179,8 +179,9 @@ public class HomeFragment extends Fragment {
                                 //get title from api
                                 String title = dataObject.getString("title");
                                 String image = dataObject.getString("urlToImage");
+                                String url = dataObject.getString("url");
 
-                                newsModelArrayList.add(new NewsModel(publisher, title, image));
+                                newsModelArrayList.add(new NewsModel(publisher, title, image, url));
                             }
                             newsAdapter.notifyDataSetChanged();
 

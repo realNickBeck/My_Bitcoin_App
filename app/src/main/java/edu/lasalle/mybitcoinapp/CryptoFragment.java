@@ -181,8 +181,10 @@ public class CryptoFragment extends Fragment {
                                 JSONObject USD = quote.getJSONObject("USD");
                                 //get price from api
                                 double price = USD.getDouble("price");
+                                double volume = USD.getDouble("volume_24h");
+                                double marketCap = USD.getDouble("market_cap");
 
-                                currencyModelArrayList.add(new CurrencyModel(name, symbol, price));
+                                currencyModelArrayList.add(new CurrencyModel(name, symbol, price, volume, marketCap));
                             }
                             currencyAdapter.notifyDataSetChanged();
 

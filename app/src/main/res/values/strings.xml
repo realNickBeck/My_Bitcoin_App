@@ -35,4 +35,6 @@
     <string name="article_image">Article Image</string>
     <string name="publisher">Publisher</string>
     <string name="search_news_article">Search News Article</string>
+    <string name="volume">Volume</string>
+    <string name="news_articles">News Articles</string>
 </resources>

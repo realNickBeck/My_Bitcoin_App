@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,29 +17,31 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-public class StockNewsAdapter extends RecyclerView.Adapter<StockNewsAdapter.ViewHolder>{
-    private ArrayList<NewsModel> stockNewsModelArrayList;
+public class CryptoNewsAdapter  extends RecyclerView.Adapter<CryptoNewsAdapter.ViewHolder>{
+    private ArrayList<NewsModel> cryptoNewsModelArrayList;
     private final Context context;
 
-    public StockNewsAdapter(ArrayList<NewsModel> stockNewsModelArrayList, Context context) {
-        this.stockNewsModelArrayList = stockNewsModelArrayList;
+    public CryptoNewsAdapter(ArrayList<NewsModel> cryptoNewsModelArrayList, Context context) {
+        this.cryptoNewsModelArrayList = cryptoNewsModelArrayList;
         this.context = context;
     }
 
     @NonNull
     @Override
-    public StockNewsAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public CryptoNewsAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.news_item,parent,false);
-        return new StockNewsAdapter.ViewHolder(view);
+        return new CryptoNewsAdapter.ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull StockNewsAdapter.ViewHolder holder, int position) {
-        NewsModel newsModel = stockNewsModelArrayList.get(position);
+    public void onBindViewHolder(@NonNull CryptoNewsAdapter.ViewHolder holder, int position) {
+        NewsModel newsModel = cryptoNewsModelArrayList.get(position);
         holder.publisher.setText(newsModel.getPublisher());
         holder.articleTitle.setText(newsModel.getArticleTitle());
-        String image = stockNewsModelArrayList.get(position).getImage();
-        Picasso.get().load(image).into(holder.image);
+        String image = cryptoNewsModelArrayList.get(position).getImage();
+
+        //Toast.makeText(context, "" + image, Toast.LENGTH_SHORT).show();
+        //Picasso.get().load(image).into(holder.image);
 
         holder.itemView.setOnClickListener(v -> {
             Uri uri = Uri.parse(newsModel.getUrl()); // missing 'http://' will cause crashed
@@ -51,7 +54,7 @@ public class StockNewsAdapter extends RecyclerView.Adapter<StockNewsAdapter.View
 
     @Override
     public int getItemCount() {
-        return stockNewsModelArrayList.size();
+        return cryptoNewsModelArrayList.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
