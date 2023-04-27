@@ -40,6 +40,7 @@ public class CryptoNewsAdapter  extends RecyclerView.Adapter<CryptoNewsAdapter.V
         holder.articleTitle.setText(newsModel.getArticleTitle());
         String image = cryptoNewsModelArrayList.get(position).getImage();
 
+        //this is the part I do not know why it is not working
         //Toast.makeText(context, "" + image, Toast.LENGTH_SHORT).show();
         //Picasso.get().load(image).into(holder.image);
 
